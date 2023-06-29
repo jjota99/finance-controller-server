@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { CreateParticipantDto } from './dto/create-participant.dto'
 import { UpdateParticipantDto } from './dto/update-participant.dto'
 import { InjectRepository } from '@nestjs/typeorm'
@@ -11,23 +11,53 @@ export class ParticipantService {
       @InjectRepository(Participant)
       private repository: ParticipantRepository,
    ) {}
-   create(createParticipantDto: CreateParticipantDto) {
-      return this.repository.create(createParticipantDto)
-   }
 
-   findAll() {
+   findAll(): Promise<Participant[]> {
       return this.repository.find()
    }
 
-   findOne(id: number) {
-      return this.findOne(id)
+   async findOne(id: number): Promise<Participant> {
+      try {
+         const participant = await this.repository.findOneById(id)
+         if (participant === null) {
+            throw new HttpException('Usuário não encontrado', HttpStatus.NOT_FOUND)
+         }
+         return participant
+      } catch (error) {
+         throw error
+      }
    }
 
-   update(id: number, updateParticipantDto: UpdateParticipantDto) {
-      return this.repository.update(id, updateParticipantDto)
+   async create(createParticipantDto: CreateParticipantDto): Promise<Participant> {
+      const newParticipant = await this.repository.create(
+         this.repository.create(createParticipantDto),
+      )
+
+      await this.repository.save(newParticipant)
+      return this.repository.findOneById(newParticipant.id)
    }
 
-   remove(id: number) {
-      return this.remove(id)
+   async update(
+      id: number,
+      updateParticipantDto: UpdateParticipantDto,
+   ): Promise<Participant> {
+      await this.repository.update(id, updateParticipantDto)
+
+      return this.repository.findOneById(id)
+   }
+
+   async remove(id: number): Promise<void> {
+      try {
+         const participant = await this.repository.findOneById(id)
+         if (participant === null) {
+            throw new HttpException(
+               `Não foi possível deletar o usuário de id: ${id}`,
+               HttpStatus.BAD_REQUEST,
+            )
+         }
+         await this.repository.delete(id)
+      } catch (error) {
+         throw error
+      }
    }
 }

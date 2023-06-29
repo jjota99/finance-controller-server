@@ -1,1 +1,3 @@
-export class CreateParticipantDto {}
+export class CreateParticipantDto {
+   participantName: string
+}
