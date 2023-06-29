@@ -28,22 +28,24 @@ export class ParticipantService {
       }
    }
 
-   async create(createParticipantDto: CreateParticipantDto): Promise<Participant> {
+   async create(
+      createParticipantDto: CreateParticipantDto,
+   ): Promise<CreateParticipantDto> {
       const newParticipant = await this.repository.create(
          this.repository.create(createParticipantDto),
       )
 
       await this.repository.save(newParticipant)
-      return this.repository.findOneById(newParticipant.id)
+      return createParticipantDto
    }
 
    async update(
       id: number,
       updateParticipantDto: UpdateParticipantDto,
-   ): Promise<Participant> {
+   ): Promise<UpdateParticipantDto> {
       await this.repository.update(id, updateParticipantDto)
 
-      return this.repository.findOneById(id)
+      return updateParticipantDto
    }
 
    async remove(id: number): Promise<void> {

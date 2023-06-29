@@ -30,16 +30,16 @@ export class EventService {
       }
    }
 
-   async create(createEventDto: CreateEventDto): Promise<Event> {
+   async create(createEventDto: CreateEventDto): Promise<CreateEventDto> {
       const newEvent = await this.repository.create(createEventDto)
 
       await this.repository.save(newEvent)
-      return newEvent
+      return createEventDto
    }
 
    async update(id: number, updateEventDto: UpdateEventDto): Promise<UpdateEventDto> {
       await this.repository.update(id, updateEventDto)
-      return this.repository.findOneById(id)
+      return updateEventDto
    }
 
    async remove(id: number): Promise<void> {
