@@ -11,7 +11,4 @@ export class Event {
 
    @Column({ name: 'data' })
    eventDate: string
-
-   @OneToMany(() => Participant, (participant) => participant.event)
-   participant: Participant[]
 }
