@@ -7,11 +7,6 @@ import { UpdateTransactionDto } from './dto/update-transaction.dto';
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
-  @Post()
-  create(@Body() createTransactionDto: CreateTransactionDto) {
-    return this.transactionsService.create(createTransactionDto);
-  }
-
   @Get()
   findAll() {
     return this.transactionsService.findAll();
@@ -22,7 +17,12 @@ export class TransactionsController {
     return this.transactionsService.findOne(+id);
   }
 
-  @Put('/edit/:id')
+  @Post('/create')
+  create(@Body() createTransactionDto: CreateTransactionDto) {
+    return this.transactionsService.create(createTransactionDto);
+  }
+
+  @Put('/update/:id')
   update(@Param('id') id: string, @Body() updateTransactionDto: UpdateTransactionDto) {
     return this.transactionsService.update(+id, updateTransactionDto);
   }

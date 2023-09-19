@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { SharedModule } from './shared/shared.module'
 import { ApiConfigService } from './shared/api-config.service'
+import { TransactionsModule } from './modules/transactions/transactions.module'
 
 @Module({
    imports: [
@@ -13,6 +14,7 @@ import { ApiConfigService } from './shared/api-config.service'
             apiConfigService.createTypeOrmConfig,
          inject: [ApiConfigService],
       }),
+      TransactionsModule
    ],
    controllers: [],
    providers: [],
