@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
+import { Repository, Connection } from 'typeorm';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { Transaction } from './entities/transaction.entity';
@@ -8,6 +8,8 @@ import { Transaction } from './entities/transaction.entity';
 @Injectable()
 export class TransactionsService {
 constructor(
+  @InjectConnection()
+  private connection : Connection,
   @InjectRepository(Transaction)
   private transactionsRepository: Repository<Transaction>
 ){}
@@ -18,14 +20,33 @@ constructor(
   }
 
   async findAll() {
-    const transactions = await this.transactionsRepository.find();
-    if (transactions.length === 0) {
+    try {
+      const queryRunner = this.connection.createQueryRunner();
+      
+      await queryRunner.connect();
+
+      const transactions: Promise<Transaction[]> = queryRunner.manager
+      .createQueryBuilder()
+      .select('transaction.id', 'id')
+      .addSelect('transaction.transaction_name', "transactionName")
+      .addSelect("to_char(transaction.transaction_date, 'DD/MM/YYYY')", "transactionDate")
+      .addSelect('transaction.transaction_type', "transactionType")
+      .addSelect('transaction.transaction_value', "transactionValue")
+      .from(Transaction ,'transaction')
+      .orderBy('transaction.transaction_date', 'DESC')
+      .getRawMany()
+
+    if ((await transactions).length === 0) {
       throw new HttpException(
         { status: HttpStatus.NO_CONTENT, error: 'Não há transações!' }, 
         HttpStatus.NO_CONTENT
       );
     }
+
     return transactions;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async findOne(id: number) {

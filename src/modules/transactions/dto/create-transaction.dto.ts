@@ -1,6 +1,6 @@
 export class CreateTransactionDto {
   transactionName: string;
-  transactionDate: string;
+  transactionDate: Date;
   transactionType: string;
   transactionValue: number;
 }

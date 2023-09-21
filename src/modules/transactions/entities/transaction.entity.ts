@@ -5,15 +5,15 @@ export class Transaction {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({name: 'transaction_name'})
   transactionName: string;
 
-  @Column()
-  transactionDate: string;
+  @Column({name: 'transaction_date'})
+  transactionDate: Date;
 
-  @Column()
+  @Column({name: 'transaction_type'})
   transactionType: string;
 
-  @Column()
+  @Column( {name: 'transaction_value', type: 'float'})
   transactionValue: number;
 }
