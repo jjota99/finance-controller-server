@@ -22,7 +22,6 @@ constructor(
   async findAll() {
     try {
       const queryRunner = this.connection.createQueryRunner();
-      
       await queryRunner.connect();
 
       const transactions: Promise<Transaction[]> = queryRunner.manager
