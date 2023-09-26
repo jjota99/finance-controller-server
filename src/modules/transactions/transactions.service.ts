@@ -32,7 +32,7 @@ constructor(
       .addSelect('transaction.transaction_type', "transactionType")
       .addSelect('transaction.transaction_value', "transactionValue")
       .from(Transaction ,'transaction')
-      .orderBy('transaction.transaction_date', 'DESC')
+      .orderBy('transaction.transaction_date', 'ASC')
       .getRawMany()
 
     if ((await transactions).length === 0) {

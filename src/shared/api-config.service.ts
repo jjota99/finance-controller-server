@@ -36,6 +36,7 @@ export class ApiConfigService {
          password: this.getString('DB_PASSWORD', 'financial_admin'),
          database: this.getString('DB_NAME', 'financial_controller'),
          synchronize: true,
+         logging: true,
       }
    }
 }
