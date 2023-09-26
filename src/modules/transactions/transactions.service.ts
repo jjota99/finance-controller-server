@@ -20,10 +20,10 @@ constructor(
   }
 
   async findAll() {
-    try {
-      const queryRunner = this.connection.createQueryRunner();
-      await queryRunner.connect();
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
 
+    try {
       const transactions: Promise<Transaction[]> = queryRunner.manager
       .createQueryBuilder()
       .select('transaction.id', 'id')
@@ -45,6 +45,8 @@ constructor(
     return transactions;
     } catch (error) {
       throw error;
+    } finally {
+      await queryRunner.release();
     }
   }
 
