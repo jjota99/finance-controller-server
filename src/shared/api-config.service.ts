@@ -24,11 +24,9 @@ export class ApiConfigService {
 
    get createTypeOrmConfig(): TypeOrmModuleOptions {
       const entities = [__dirname + '/../modules/**/*.entity{.ts,.js}']
-      const migrations = [__dirname + '/../db/migrations/*{.ts,.js}']
 
       return {
          entities: entities,
-         migrations: migrations,
          type: 'postgres',
          host: this.getString('DB_HOST', 'localhost'),
          port: this.getNumber('DB_PORT', 5432),
