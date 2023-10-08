@@ -15,11 +15,6 @@ export class TransactionsService {
       private transactionsRepository: Repository<Transaction>,
    ) {}
 
-   create(createTransactionDto: CreateTransactionDto) {
-      const createTransaction = this.transactionsRepository.create(createTransactionDto)
-      return this.transactionsRepository.save(createTransaction)
-   }
-
    async findMonthAmountDetail(): Promise<MonthAmountDetailDto[]> {
       const queryRunner = this.connection.createQueryRunner()
 
@@ -27,7 +22,7 @@ export class TransactionsService {
          await queryRunner.connect()
          return queryRunner.manager
             .createQueryBuilder()
-            .select("TO_CHAR(DATE_TRUNC('month', transaction_date), 'mm/yyyy')", 'date')
+            .select("TO_CHAR(DATE_TRUNC('month', transaction_date), 'mm / yyyy')", 'date')
             .addSelect(
                "TO_CHAR(DATE_TRUNC('month', transaction_date), 'mm')::int",
                'month',
@@ -88,6 +83,17 @@ export class TransactionsService {
          )
       }
       return transaction
+   }
+
+   create(createTransactionDto: CreateTransactionDto) {
+      const { transactionValue, transactionType } = createTransactionDto
+      const formatedTransaction = {
+         ...createTransactionDto,
+         transactionValue:
+            transactionType === 'Saída' ? transactionValue * -1 : transactionValue,
+      }
+      const createTransaction = this.transactionsRepository.create(formatedTransaction)
+      return this.transactionsRepository.save(createTransaction)
    }
 
    async update(
