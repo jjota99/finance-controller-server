@@ -28,6 +28,10 @@ export class TransactionsService {
                'month',
             )
             .addSelect('SUM(transaction_value)', 'amount')
+            .addSelect(
+               "CASE WHEN SUM(transaction_value) < 0 THEN 'negativo' ELSE 'positivo' END",
+               'status',
+            )
             .from(Transaction, 'transaction')
             .groupBy('date')
             .addGroupBy('month')
