@@ -35,7 +35,7 @@ export class ApiConfigService {
          database: this.getString('DB_NAME', 'financial_controller'),
          synchronize: true,
          logging: true,
-         poolSize: 5
+         poolSize: 5,
       }
    }
 }

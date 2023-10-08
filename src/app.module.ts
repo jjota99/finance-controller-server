@@ -14,7 +14,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module'
             apiConfigService.createTypeOrmConfig,
          inject: [ApiConfigService],
       }),
-      TransactionsModule
+      TransactionsModule,
    ],
    controllers: [],
    providers: [],
