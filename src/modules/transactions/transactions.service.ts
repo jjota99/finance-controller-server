@@ -1,9 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectConnection, InjectRepository } from '@nestjs/typeorm'
-import { Repository, Connection } from 'typeorm'
+import { Connection, DeleteResult, Repository, UpdateResult } from 'typeorm'
 import { CreateTransactionDto } from './dto/create-transaction.dto'
 import { UpdateTransactionDto } from './dto/update-transaction.dto'
 import { Transaction } from './entities/transaction.entity'
+import { MonthAmountDetailDto } from './dto/detail-transaction.dto'
 
 @Injectable()
 export class TransactionsService {
@@ -19,11 +20,36 @@ export class TransactionsService {
       return this.transactionsRepository.save(createTransaction)
    }
 
-   async findAll() {
+   async findMonthAmountDetail(): Promise<MonthAmountDetailDto[]> {
       const queryRunner = this.connection.createQueryRunner()
-      await queryRunner.connect()
 
       try {
+         await queryRunner.connect()
+         return queryRunner.manager
+            .createQueryBuilder()
+            .select("TO_CHAR(DATE_TRUNC('month', transaction_date), 'mm/yyyy')", 'date')
+            .addSelect(
+               "TO_CHAR(DATE_TRUNC('month', transaction_date), 'mm')::int",
+               'month',
+            )
+            .addSelect('SUM(transaction_value)', 'amount')
+            .from(Transaction, 'transaction')
+            .groupBy('date')
+            .addGroupBy('month')
+            .orderBy('date')
+            .getRawMany()
+      } catch (error) {
+         throw error
+      } finally {
+         await queryRunner.release()
+      }
+   }
+
+   async findAll() {
+      const queryRunner = this.connection.createQueryRunner()
+
+      try {
+         await queryRunner.connect()
          const transactions: Promise<Transaction[]> = queryRunner.manager
             .createQueryBuilder()
             .select('transaction.id', 'id')
@@ -53,7 +79,7 @@ export class TransactionsService {
       }
    }
 
-   async findOne(id: number) {
+   async findOne(id: number): Promise<Transaction> {
       const transaction = await this.transactionsRepository.findOne({ where: { id: id } })
       if (transaction === null) {
          throw new HttpException(
@@ -64,7 +90,10 @@ export class TransactionsService {
       return transaction
    }
 
-   async update(id: number, updateTransactionDto: UpdateTransactionDto) {
+   async update(
+      id: number,
+      updateTransactionDto: UpdateTransactionDto,
+   ): Promise<UpdateResult> {
       const transaction = await this.transactionsRepository.findOne({ where: { id: id } })
       if (transaction === null) {
          throw new HttpException(
@@ -75,7 +104,7 @@ export class TransactionsService {
       return this.transactionsRepository.update(id, updateTransactionDto)
    }
 
-   async remove(id: number) {
+   async remove(id: number): Promise<DeleteResult> {
       const transaction = await this.transactionsRepository.findOne({ where: { id: id } })
       if (transaction === null) {
          throw new HttpException(
