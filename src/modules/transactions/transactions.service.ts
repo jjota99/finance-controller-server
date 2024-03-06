@@ -15,35 +15,6 @@ export class TransactionsService {
       private transactionsRepository: Repository<Transaction>,
    ) {}
 
-   async findMonthAmountDetail(): Promise<MonthAmountDetailDto[]> {
-      const queryRunner = this.connection.createQueryRunner()
-
-      try {
-         await queryRunner.connect()
-         return queryRunner.manager
-            .createQueryBuilder()
-            .select("TO_CHAR(DATE_TRUNC('month', transaction_date), 'mm / yyyy')", 'date')
-            .addSelect(
-               "TO_CHAR(DATE_TRUNC('month', transaction_date), 'mm')::int",
-               'month',
-            )
-            .addSelect('SUM(transaction_value)', 'amount')
-            .addSelect(
-               "CASE WHEN SUM(transaction_value) < 0 THEN 'negativo' ELSE 'positivo' END",
-               'status',
-            )
-            .from(Transaction, 'transaction')
-            .groupBy('date')
-            .addGroupBy('month')
-            .orderBy('date')
-            .getRawMany()
-      } catch (error) {
-         throw error
-      } finally {
-         await queryRunner.release()
-      }
-   }
-
    async findAll() {
       const queryRunner = this.connection.createQueryRunner()
 

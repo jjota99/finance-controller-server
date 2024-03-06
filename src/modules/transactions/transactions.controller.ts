@@ -7,11 +7,6 @@ import { UpdateTransactionDto } from './dto/update-transaction.dto'
 export class TransactionsController {
    constructor(private readonly transactionsService: TransactionsService) {}
 
-   @Get('/detail/month-amount')
-   findDetail() {
-      return this.transactionsService.findMonthAmountDetail()
-   }
-
    @Get()
    findAll() {
       return this.transactionsService.findAll()
