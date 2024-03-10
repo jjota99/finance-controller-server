@@ -1,16 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
-import { InjectConnection, InjectRepository } from '@nestjs/typeorm'
-import { Connection, DeleteResult, Repository, UpdateResult } from 'typeorm'
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm'
+import { DataSource, DeleteResult, Repository, UpdateResult } from 'typeorm'
 import { CreateTransactionDto } from './dto/create-transaction.dto'
 import { UpdateTransactionDto } from './dto/update-transaction.dto'
 import { Transaction } from './entities/transaction.entity'
-import { MonthAmountDetailDto } from './dto/detail-transaction.dto'
 
 @Injectable()
 export class TransactionsService {
    constructor(
-      @InjectConnection()
-      private connection: Connection,
+      @InjectDataSource()
+      private connection: DataSource,
       @InjectRepository(Transaction)
       private transactionsRepository: Repository<Transaction>,
    ) {}
