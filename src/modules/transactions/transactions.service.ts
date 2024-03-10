@@ -35,7 +35,7 @@ export class TransactionsService {
 
          if ((await transactions).length === 0) {
             throw new HttpException(
-               { status: HttpStatus.NO_CONTENT, error: 'Não há transações!' },
+               { status: HttpStatus.NO_CONTENT, warn: 'Não há transações!' },
                HttpStatus.NO_CONTENT,
             )
          }
@@ -50,12 +50,14 @@ export class TransactionsService {
 
    async findOne(id: number): Promise<Transaction> {
       const transaction = await this.transactionsRepository.findOne({ where: { id: id } })
+
       if (transaction === null) {
          throw new HttpException(
-            { status: HttpStatus.NOT_FOUND, error: 'Transação inexistente!' },
+            { status: HttpStatus.NOT_FOUND, warn: 'Transação inexistente!' },
             HttpStatus.NOT_FOUND,
          )
       }
+
       return transaction
    }
 
@@ -67,6 +69,7 @@ export class TransactionsService {
             transactionType === 'Saída' ? transactionValue * -1 : transactionValue,
       }
       const createTransaction = this.transactionsRepository.create(formatedTransaction)
+
       return this.transactionsRepository.save(createTransaction)
    }
 
@@ -75,17 +78,20 @@ export class TransactionsService {
       updateTransactionDto: UpdateTransactionDto,
    ): Promise<UpdateResult> {
       const transaction = await this.transactionsRepository.findOne({ where: { id: id } })
+
       if (transaction === null) {
          throw new HttpException(
             { status: HttpStatus.NOT_FOUND, error: 'Transação inexistente!' },
             HttpStatus.NOT_FOUND,
          )
       }
+
       return this.transactionsRepository.update(id, updateTransactionDto)
    }
 
    async remove(id: number): Promise<DeleteResult> {
       const transaction = await this.transactionsRepository.findOne({ where: { id: id } })
+      
       if (transaction === null) {
          throw new HttpException(
             { status: HttpStatus.NOT_FOUND, error: 'Transação inexistente!' },
