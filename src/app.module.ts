@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { SharedModule } from './shared/shared.module'
 import { ApiConfigService } from './shared/api-config.service'
 import { TransactionsModule } from './modules/transactions/transactions.module'
+import { UsersModule } from './modules/users/users.module'
 
 @Module({
    imports: [
@@ -15,6 +16,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module'
          inject: [ApiConfigService],
       }),
       TransactionsModule,
+      UsersModule,
    ],
    controllers: [],
    providers: [],
