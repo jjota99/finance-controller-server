@@ -1,11 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 import { UsersService } from '../users/users.service'
+import { LoginDto } from './dto/login.dto'
 
 @Injectable()
 export class AuthService {
    constructor(private readonly usersService: UsersService) {}
-   async login(loginDto): Promise<boolean> {
+   async login(loginDto: LoginDto): Promise<boolean> {
       const user = await this.usersService.findOneByCpf(loginDto.login)
 
       return await this.validatePasswordEncrypted(loginDto.password, user?.password)
