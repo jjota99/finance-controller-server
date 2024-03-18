@@ -5,6 +5,7 @@ import { SharedModule } from './shared/shared.module'
 import { ApiConfigService } from './shared/api-config.service'
 import { TransactionsModule } from './modules/transactions/transactions.module'
 import { UsersModule } from './modules/users/users.module'
+import { AuthModule } from './modules/auth/auth.module'
 
 @Module({
    imports: [
@@ -17,6 +18,7 @@ import { UsersModule } from './modules/users/users.module'
       }),
       TransactionsModule,
       UsersModule,
+      AuthModule,
    ],
    controllers: [],
    providers: [],

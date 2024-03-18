@@ -14,7 +14,7 @@ export class UsersService {
       private repository: Repository<User>,
    ) {}
 
-   async findAll() {
+   async findAll(): Promise<User[]> {
       const users = await this.repository.find({})
 
       if (users.length === 0) {
@@ -27,7 +27,7 @@ export class UsersService {
       return users
    }
 
-   async findOne(id: number) {
+   async findOne(id: number): Promise<User> {
       const user = await this.repository.findOne({ where: { id } })
 
       if (user === null) {
@@ -40,7 +40,20 @@ export class UsersService {
       return user
    }
 
-   async create(createUserDto: CreateUserDto) {
+   async findOneByCpf(cpf: string): Promise<User> {
+      const user = await this.repository.findOne({ where: { cpf: cpf } })
+
+      if (user === null) {
+         throw new HttpException(
+            { status: HttpStatus.NO_CONTENT, warn: 'CPF inválido!' },
+            HttpStatus.NO_CONTENT,
+         )
+      }
+
+      return user
+   }
+
+   async create(createUserDto: CreateUserDto): Promise<void> {
       const userWithEncryptedPassword: CreateUserDto = {
          ...createUserDto,
          password: await bcrypt.hash(createUserDto.password, 10),
@@ -52,7 +65,7 @@ export class UsersService {
       await this.repository.save(userWithEncryptedPassword)
    }
 
-   private async validateExistentUniqueFields(user: CreateUserDto) {
+   private async validateExistentUniqueFields(user: CreateUserDto): Promise<void> {
       const findUserByUniqueFields = await this.repository.findOne({
          where: { cpf: user.cpf },
       })
@@ -68,7 +81,7 @@ export class UsersService {
       }
    }
 
-   private async validatePasswordEquality(user: CreateUserDto) {
+   private async validatePasswordEquality(user: CreateUserDto): Promise<void> {
       if (user.password !== user.passwordConfirm) {
          throw new HttpException(
             {
@@ -78,9 +91,5 @@ export class UsersService {
             HttpStatus.BAD_REQUEST,
          )
       }
-   }
-
-   private async validatePasswordEncrypted(reqPassword: string, userPassword: string) {
-      return await bcrypt.compare(reqPassword, userPassword)
    }
 }
