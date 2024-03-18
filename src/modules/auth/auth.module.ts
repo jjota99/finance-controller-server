@@ -8,7 +8,14 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 @Module({
-   imports: [UsersModule, JwtModule.register({ secret: process.env.JWT_KEY })],
+   imports: [
+      UsersModule,
+      JwtModule.register({
+         secret: process.env.JWT_KEY,
+         global: true,
+         signOptions: { expiresIn: '12h' },
+      }),
+   ],
    controllers: [AuthController],
    providers: [AuthService],
    exports: [AuthService],

@@ -11,14 +11,14 @@ export class AuthService {
       private readonly usersService: UsersService,
       private jwtService: JwtService,
    ) {}
-   async login(loginDto: LoginDto): Promise<{ acess_token: string }> {
+   async sigIn(loginDto: LoginDto): Promise<{ acess_token: string }> {
       const user: User = await this.usersService.findOneByCpf(loginDto.login)
-      const isValid: boolean = await this.validatePasswordEncrypted(
+      const passwordIsValid: boolean = await this.validatePasswordEncrypted(
          loginDto.password,
          user?.password,
       )
 
-      if (!isValid) {
+      if (!passwordIsValid) {
          throw new HttpException(
             {
                status: HttpStatus.BAD_REQUEST,
@@ -28,12 +28,14 @@ export class AuthService {
          )
       }
 
+      const payload = {
+         id: user.id,
+         name: user.name,
+         cpf: user.cpf,
+      }
+
       return {
-         acess_token: await this.jwtService.signAsync({
-            id: user.id,
-            name: user.name,
-            cpf: user.cpf,
-         }),
+         acess_token: await this.jwtService.signAsync(payload),
       }
    }
 
