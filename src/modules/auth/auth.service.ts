@@ -1,9 +1,18 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import {
+   HttpException,
+   HttpStatus,
+   Injectable,
+   UnauthorizedException,
+} from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 import { UsersService } from '../users/users.service'
 import { LoginDto } from './dto/login.dto'
 import { User } from '../users/entities/user.entity'
 import { JwtService } from '@nestjs/jwt'
+import * as dotenv from 'dotenv'
+import * as process from 'process'
+
+dotenv.config()
 
 @Injectable()
 export class AuthService {
@@ -11,7 +20,7 @@ export class AuthService {
       private readonly usersService: UsersService,
       private jwtService: JwtService,
    ) {}
-   async sigIn(loginDto: LoginDto): Promise<{ acess_token: string }> {
+   async sigIn(loginDto: LoginDto): Promise<{ access_token: string }> {
       const user: User = await this.usersService.findOneByCpf(loginDto.login)
       const passwordIsValid: boolean = await this.validatePasswordEncrypted(
          loginDto.password,
@@ -19,15 +28,22 @@ export class AuthService {
       )
 
       if (!passwordIsValid) {
-         throw new HttpException(
-            {
-               status: HttpStatus.BAD_REQUEST,
-               message: 'Senha inválida!',
-            },
-            HttpStatus.BAD_REQUEST,
-         )
+         throw new UnauthorizedException({
+            status: HttpStatus.UNAUTHORIZED,
+            message: 'Senha inválida!',
+         })
       }
 
+      // if (loginDto.token) {
+      //    const verifyToken = await this.jwtService.verifyAsync(loginDto.token, {
+      //       secret: process.env.JWT_KEY,
+      //    })
+      // }
+
+      return await this.generateAccessToken(user)
+   }
+
+   private async generateAccessToken(user: User): Promise<{ access_token: string }> {
       const payload = {
          id: user.id,
          name: user.name,
@@ -35,7 +51,7 @@ export class AuthService {
       }
 
       return {
-         acess_token: await this.jwtService.signAsync(payload),
+         access_token: await this.jwtService.signAsync(payload),
       }
    }
 

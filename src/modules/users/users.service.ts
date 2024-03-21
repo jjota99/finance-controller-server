@@ -45,8 +45,8 @@ export class UsersService {
 
       if (user === null) {
          throw new HttpException(
-            { status: HttpStatus.NO_CONTENT, warn: 'CPF inválido!' },
-            HttpStatus.NO_CONTENT,
+            { status: HttpStatus.UNAUTHORIZED, error: 'CPF inválido!' },
+            HttpStatus.UNAUTHORIZED,
          )
       }
 
@@ -63,6 +63,11 @@ export class UsersService {
       await this.validatePasswordEquality(createUserDto)
 
       await this.repository.save(userWithEncryptedPassword)
+
+      throw new HttpException(
+         { message: 'Conta criada com sucesso', status: HttpStatus.OK },
+         HttpStatus.OK,
+      )
    }
 
    private async validateExistentUniqueFields(user: CreateUserDto): Promise<void> {
