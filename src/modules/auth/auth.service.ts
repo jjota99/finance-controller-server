@@ -20,12 +20,13 @@ export class AuthService {
       private readonly usersService: UsersService,
       private jwtService: JwtService,
    ) {}
-   async sigIn(loginDto: LoginDto): Promise<{ access_token: string }> {
+   async sigIn(request: Request, loginDto: LoginDto): Promise<{ access_token: string }> {
       const user: User = await this.usersService.findOneByCpf(loginDto.login)
       const passwordIsValid: boolean = await this.validatePasswordEncrypted(
          loginDto.password,
          user?.password,
       )
+      const token = request.headers['authorization']?.split(':')[1]
 
       if (!passwordIsValid) {
          throw new UnauthorizedException({
@@ -34,13 +35,30 @@ export class AuthService {
          })
       }
 
-      // if (loginDto.token) {
-      //    const verifyToken = await this.jwtService.verifyAsync(loginDto.token, {
-      //       secret: process.env.JWT_KEY,
-      //    })
-      // }
+      if (token) {
+         const decode = this.validateAcessToken(loginDto.token)
+
+         if (decode !== null) {
+            throw new HttpException(
+               { status: HttpStatus.OK, message: 'Autenticado com sucesso!' },
+               HttpStatus.OK,
+            )
+         }
+      }
 
       return await this.generateAccessToken(user)
+   }
+
+   private async validateAcessToken(
+      token: string,
+   ): Promise<{ id: number; name: string; cpf: string }> {
+      try {
+         return await this.jwtService.verifyAsync(token, {
+            secret: process.env.JWT_KEY,
+         })
+      } catch {
+         return null
+      }
    }
 
    private async generateAccessToken(user: User): Promise<{ access_token: string }> {
