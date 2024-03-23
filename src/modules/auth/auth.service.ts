@@ -12,7 +12,6 @@ import { JwtService } from '@nestjs/jwt'
 import * as dotenv from 'dotenv'
 import * as process from 'process'
 import { UserInfosDto } from './dto/user-infos.dto'
-import * as jwt_decode from 'jwt-decode'
 
 dotenv.config()
 
