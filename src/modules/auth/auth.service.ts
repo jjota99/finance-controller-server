@@ -11,6 +11,8 @@ import { User } from '../users/entities/user.entity'
 import { JwtService } from '@nestjs/jwt'
 import * as dotenv from 'dotenv'
 import * as process from 'process'
+import { UserInfosDto } from './dto/user-infos.dto'
+import * as jwt_decode from 'jwt-decode'
 
 dotenv.config()
 
@@ -20,13 +22,12 @@ export class AuthService {
       private readonly usersService: UsersService,
       private jwtService: JwtService,
    ) {}
-   async sigIn(request: Request, loginDto: LoginDto): Promise<{ access_token: string }> {
+   async sigIn(loginDto: LoginDto): Promise<{ access_token: string }> {
       const user: User = await this.usersService.findOneByCpf(loginDto.login)
       const passwordIsValid: boolean = await this.validatePasswordEncrypted(
          loginDto.password,
          user?.password,
       )
-      const token = request.headers['authorization']?.split(':')[1]
 
       if (!passwordIsValid) {
          throw new UnauthorizedException({
@@ -35,8 +36,8 @@ export class AuthService {
          })
       }
 
-      if (token) {
-         const decode = this.validateAcessToken(loginDto.token)
+      if (loginDto.token) {
+         const decode = await this.verifyAcessToken(loginDto.token)
 
          if (decode !== null) {
             throw new HttpException(
@@ -49,9 +50,7 @@ export class AuthService {
       return await this.generateAccessToken(user)
    }
 
-   private async validateAcessToken(
-      token: string,
-   ): Promise<{ id: number; name: string; cpf: string }> {
+   async verifyAcessToken(token: string): Promise<UserInfosDto> {
       try {
          return await this.jwtService.verifyAsync(token, {
             secret: process.env.JWT_KEY,
