@@ -13,19 +13,19 @@ import { CreateTransactionDto } from './dto/create-transaction.dto'
 import { UpdateTransactionDto } from './dto/update-transaction.dto'
 import { AuthGuard } from '../../guard/auth.guard'
 
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 @Controller('transactions')
 export class TransactionsController {
    constructor(private readonly transactionsService: TransactionsService) {}
 
-   @Get()
-   findAll() {
-      return this.transactionsService.findAll()
+   @Get('/:userId')
+   findAll(@Param('userId') userId: string) {
+      return this.transactionsService.findAll(+userId)
    }
 
-   @Get('/find-one/:id')
-   findOne(@Param('id') id: string) {
-      return this.transactionsService.findOne(+id)
+   @Get('/find-one/id/:id/user/:userId')
+   findOne(@Param('id') id: string, @Param('userId') userId: string) {
+      return this.transactionsService.findOne(+id, +userId)
    }
 
    @Post('/create')

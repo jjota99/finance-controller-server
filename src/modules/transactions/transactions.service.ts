@@ -14,7 +14,7 @@ export class TransactionsService {
       private transactionsRepository: Repository<Transaction>,
    ) {}
 
-   async findAll() {
+   async findAll(userId: number) {
       const queryRunner = this.connection.createQueryRunner()
 
       try {
@@ -30,6 +30,7 @@ export class TransactionsService {
             .addSelect('transaction.transaction_type', 'transactionType')
             .addSelect('transaction.transaction_value', 'transactionValue')
             .from(Transaction, 'transaction')
+            .where('user_id = :userId', { userId })
             .orderBy('transaction.transaction_date', 'ASC')
             .getRawMany()
 
@@ -48,8 +49,10 @@ export class TransactionsService {
       }
    }
 
-   async findOne(id: number): Promise<Transaction> {
-      const transaction = await this.transactionsRepository.findOne({ where: { id: id } })
+   async findOne(id: number, userId: number): Promise<Transaction> {
+      const transaction = await this.transactionsRepository.findOne({
+         where: { id: id, userId: userId },
+      })
 
       if (transaction === null) {
          throw new HttpException(
@@ -91,7 +94,7 @@ export class TransactionsService {
 
    async remove(id: number): Promise<DeleteResult> {
       const transaction = await this.transactionsRepository.findOne({ where: { id: id } })
-      
+
       if (transaction === null) {
          throw new HttpException(
             { status: HttpStatus.NOT_FOUND, error: 'Transação inexistente!' },

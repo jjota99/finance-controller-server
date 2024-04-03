@@ -3,4 +3,5 @@ export class CreateTransactionDto {
    transactionDate: Date
    transactionType: string
    transactionValue: number
+   userId: number
 }

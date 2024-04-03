@@ -16,4 +16,7 @@ export class Transaction {
 
    @Column({ name: 'transaction_value', type: 'float' })
    transactionValue: number
+
+   @Column({ name: 'user_id' })
+   userId: number
 }
