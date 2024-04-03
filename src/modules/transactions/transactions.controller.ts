@@ -38,8 +38,8 @@ export class TransactionsController {
       return this.transactionsService.update(+id, updateTransactionDto)
    }
 
-   @Delete('/delete/:id')
-   remove(@Param('id') id: string) {
-      return this.transactionsService.remove(+id)
+   @Delete('/delete/id/:id/user/:userId')
+   remove(@Param('id') id: string, @Param('userId') userId: string) {
+      return this.transactionsService.remove(+id, +userId)
    }
 }

@@ -80,7 +80,9 @@ export class TransactionsService {
       id: number,
       updateTransactionDto: UpdateTransactionDto,
    ): Promise<UpdateResult> {
-      const transaction = await this.transactionsRepository.findOne({ where: { id: id } })
+      const transaction = await this.transactionsRepository.findOne({
+         where: { id: id, userId: updateTransactionDto.userId },
+      })
 
       if (transaction === null) {
          throw new HttpException(
@@ -89,11 +91,16 @@ export class TransactionsService {
          )
       }
 
-      return this.transactionsRepository.update(id, updateTransactionDto)
+      return this.transactionsRepository.update(
+         { id: id, userId: updateTransactionDto.userId },
+         updateTransactionDto,
+      )
    }
 
-   async remove(id: number): Promise<DeleteResult> {
-      const transaction = await this.transactionsRepository.findOne({ where: { id: id } })
+   async remove(id: number, userId: number): Promise<DeleteResult> {
+      const transaction = await this.transactionsRepository.findOne({
+         where: { id: id, userId: userId },
+      })
 
       if (transaction === null) {
          throw new HttpException(
@@ -102,6 +109,6 @@ export class TransactionsService {
          )
       }
 
-      return this.transactionsRepository.delete(id)
+      return this.transactionsRepository.delete({ id: id, userId: userId })
    }
 }
