@@ -22,6 +22,7 @@ export class TransactionsService {
          const transactions: Promise<Transaction[]> = queryRunner.manager
             .createQueryBuilder()
             .select('transaction.id', 'id')
+            .addSelect('transaction.user_id', 'userId')
             .addSelect('transaction.transaction_name', 'transactionName')
             .addSelect(
                "to_char(transaction.transaction_date, 'YYYY-MM-DD')",
