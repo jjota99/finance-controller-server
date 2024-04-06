@@ -28,6 +28,11 @@ export class TransactionsController {
       return this.transactionsService.findOne(+id, +userId)
    }
 
+   @Get('amount-detail/:userId')
+   findAmountDetail(@Param('userId') userId: string) {
+      return this.transactionsService.findAmountDetail(+userId)
+   }
+
    @Post('/create')
    create(@Body() createTransactionDto: CreateTransactionDto) {
       return this.transactionsService.create(createTransactionDto)

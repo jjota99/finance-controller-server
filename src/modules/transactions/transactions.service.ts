@@ -65,6 +65,15 @@ export class TransactionsService {
       return transaction
    }
 
+   async findAmountDetail(userId: number) {
+      const transactions = await this.transactionsRepository.find({ where: { userId } })
+      const income = this.getAmountForType(transactions, 'Entrada')
+      const outcome = this.getAmountForType(transactions, 'Saida') * -1
+      const total = income + outcome
+
+      return { income, outcome, total }
+   }
+
    create(createTransactionDto: CreateTransactionDto) {
       const { transactionValue, transactionType } = createTransactionDto
       const formatedTransaction = {
@@ -111,5 +120,15 @@ export class TransactionsService {
       }
 
       return this.transactionsRepository.delete({ id: id, userId: userId })
+   }
+
+   private getAmountForType(transactions: Transaction[], type: string) {
+      if (transactions.length > 0) {
+         return transactions
+            .filter((f) => f.transactionType === type)
+            .map((t) => t.transactionValue)
+            .reduce((a, b) => a + b)
+      }
+      return 0
    }
 }
