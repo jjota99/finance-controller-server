@@ -19,23 +19,20 @@ export class TransactionsService {
 
       try {
          await queryRunner.connect()
-         const transactions: Promise<Transaction[]> = queryRunner.manager
-            .createQueryBuilder()
-            .select('transaction.id', 'id')
-            .addSelect('transaction.user_id', 'userId')
-            .addSelect('transaction.transaction_name', 'transactionName')
-            .addSelect(
-               "to_char(transaction.transaction_date, 'YYYY-MM-DD')",
-               'transactionDate',
-            )
-            .addSelect('transaction.transaction_type', 'transactionType')
-            .addSelect('transaction.transaction_value', 'transactionValue')
-            .from(Transaction, 'transaction')
-            .where('user_id = :userId', { userId })
-            .orderBy('transaction.transaction_date', 'ASC')
-            .getRawMany()
 
-         if ((await transactions).length === 0) {
+         const transactions: Transaction[] = await queryRunner.manager.query(
+            `SELECT transaction.id                                      AS id,
+                          transaction.user_id                                 AS "userId",
+                          transaction.transaction_name                        AS "transactioName",
+                          TO_CHAR(transaction.transaction_date, 'DD-MM-YYYY') AS "transactionDate",
+                          transaction.transaction_type                        AS "transactionType",
+                          transaction.transaction_value                       AS "transactionValue"
+                        FROM tb_fat_transacoes transaction
+                        WHERE user_id = ${userId}
+                        ORDER BY transaction.transaction_date ASC;`,
+         )
+
+         if (transactions.length === 0) {
             throw new HttpException(
                { status: HttpStatus.NO_CONTENT, warn: 'Não há transações!' },
                HttpStatus.NO_CONTENT,
@@ -132,7 +129,11 @@ export class TransactionsService {
 
          if (type !== 'Total') {
             return await queryRunner.manager.query(
-               `SELECT *, CASE WHEN value::NUMERIC >= 0 THEN 'positive' ELSE 'negative' END status 
+               `SELECT *,
+                             CASE 
+                             WHEN value::NUMERIC >= 0 THEN 'positive' 
+                             ELSE 'negative' 
+                             END status 
                       FROM (
                           SELECT SUM(transaction_value) AS value 
                           FROM tb_fat_transacoes 
@@ -142,7 +143,11 @@ export class TransactionsService {
          }
 
          return await queryRunner.query(
-            `SELECT *, CASE WHEN value::NUMERIC >= 0 THEN 'positive' ELSE 'negative' END status 
+            `SELECT *, 
+                          CASE 
+                          WHEN value::NUMERIC >= 0 THEN 'positive' 
+                          ELSE 'negative' 
+                          END status 
                    FROM (
                        SELECT SUM(transaction_value) AS value 
                        FROM tb_fat_transacoes 
