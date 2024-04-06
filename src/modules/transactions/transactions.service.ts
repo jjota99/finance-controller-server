@@ -66,12 +66,11 @@ export class TransactionsService {
    }
 
    async findAmountDetail(userId: number) {
-      const transactions = await this.transactionsRepository.find({ where: { userId } })
-      const income = this.getAmountForType(transactions, 'Entrada')
-      const outcome = this.getAmountForType(transactions, 'Saida') * -1
-      const total = income + outcome
+      const income = await this.getAmountForType('Entrada', userId)
+      const outcome = await this.getAmountForType('Saida', userId)
+      const total = await this.getAmountForType('Total', userId)
 
-      return { income, outcome, total }
+      return { income: income[0], outcome: outcome[0], total: total[0] }
    }
 
    create(createTransactionDto: CreateTransactionDto) {
@@ -122,13 +121,37 @@ export class TransactionsService {
       return this.transactionsRepository.delete({ id: id, userId: userId })
    }
 
-   private getAmountForType(transactions: Transaction[], type: string) {
-      if (transactions.length > 0) {
-         return transactions
-            .filter((f) => f.transactionType === type)
-            .map((t) => t.transactionValue)
-            .reduce((a, b) => a + b)
+   private async getAmountForType(
+      type: string,
+      userId: number,
+   ): Promise<{ value: string; status: string }[]> {
+      const queryRunner = this.connection.createQueryRunner()
+
+      try {
+         await queryRunner.connect()
+
+         if (type !== 'Total') {
+            return await queryRunner.manager.query(
+               `SELECT *, CASE WHEN value::NUMERIC >= 0 THEN 'positive' ELSE 'negative' END status 
+                      FROM (
+                          SELECT SUM(transaction_value) AS value 
+                          FROM tb_fat_transacoes 
+                          WHERE transaction_type = '${type}' 
+                            AND user_id = '${userId}') AS t;`,
+            )
+         }
+
+         return await queryRunner.query(
+            `SELECT *, CASE WHEN value::NUMERIC >= 0 THEN 'positive' ELSE 'negative' END status 
+                   FROM (
+                       SELECT SUM(transaction_value) AS value 
+                       FROM tb_fat_transacoes 
+                       WHERE user_id = '${userId}') AS t;`,
+         )
+      } catch (error) {
+         console.log(error)
+      } finally {
+         await queryRunner.release()
       }
-      return 0
    }
 }

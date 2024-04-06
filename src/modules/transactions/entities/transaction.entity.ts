@@ -14,7 +14,7 @@ export class Transaction {
    @Column({ name: 'transaction_type' })
    transactionType: string
 
-   @Column({ name: 'transaction_value' })
+   @Column({ name: 'transaction_value', type: 'money' })
    transactionValue: number
 
    @Column({ name: 'user_id' })
