@@ -13,7 +13,7 @@ import { CreateTransactionDto } from './dto/create-transaction.dto'
 import { UpdateTransactionDto } from './dto/update-transaction.dto'
 import { AuthGuard } from '../../guard/auth.guard'
 
-// @UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 @Controller('transactions')
 export class TransactionsController {
    constructor(private readonly transactionsService: TransactionsService) {}
