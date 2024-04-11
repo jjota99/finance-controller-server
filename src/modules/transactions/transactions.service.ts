@@ -23,8 +23,8 @@ export class TransactionsService {
          const transactions: Transaction[] = await queryRunner.manager.query(
             `SELECT transaction.id                                      AS id,
                           transaction.user_id                                 AS "userId",
-                          transaction.transaction_name                        AS "transactioName",
-                          TO_CHAR(transaction.transaction_date, 'DD-MM-YYYY') AS "transactionDate",
+                          transaction.transaction_name                        AS "transactionName",
+                          TO_CHAR(transaction.transaction_date, 'DD/MM/YYYY') AS "transactionDate",
                           transaction.transaction_type                        AS "transactionType",
                           transaction.transaction_value                       AS "transactionValue"
                         FROM tb_fat_transacoes transaction
