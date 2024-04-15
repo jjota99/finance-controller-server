@@ -14,23 +14,30 @@ export class TransactionsService {
       private transactionsRepository: Repository<Transaction>,
    ) {}
 
-   async findAll(userId: number) {
+   async findAll(userId: number, page: number, pageSize: number) {
       const queryRunner = this.connection.createQueryRunner()
 
       try {
          await queryRunner.connect()
 
          const transactions: Transaction[] = await queryRunner.manager.query(
-            `SELECT transaction.id                                      AS id,
-                          transaction.user_id                                 AS "userId",
+            `SELECT transaction.id                                      AS "transactionId",
                           transaction.transaction_name                        AS "transactionName",
                           TO_CHAR(transaction.transaction_date, 'DD/MM/YYYY') AS "transactionDate",
                           transaction.transaction_type                        AS "transactionType",
-                          transaction.transaction_value                       AS "transactionValue"
+                          transaction.transaction_value                       AS "transactionValue",
+                          transaction.user_id                                 AS "userId"
                         FROM tb_fat_transacoes transaction
                         WHERE user_id = ${userId}
-                        ORDER BY transaction.transaction_date ASC;`,
+                        ORDER BY transaction.transaction_date ASC
+                        LIMIT ${pageSize}
+                        OFFSET ${page - 1} * ${pageSize}`,
          )
+
+         const total = await queryRunner.manager
+            .createQueryBuilder(Transaction, 'transaction')
+            .where({ userId })
+            .getCount()
 
          if (transactions.length === 0) {
             throw new HttpException(
@@ -39,7 +46,7 @@ export class TransactionsService {
             )
          }
 
-         return transactions
+         return { data: transactions, total: total }
       } catch (error) {
          throw error
       } finally {

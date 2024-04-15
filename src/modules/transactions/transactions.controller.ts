@@ -6,6 +6,7 @@ import {
    Param,
    Post,
    Put,
+   Query,
    UseGuards,
 } from '@nestjs/common'
 import { TransactionsService } from './transactions.service'
@@ -19,8 +20,12 @@ export class TransactionsController {
    constructor(private readonly transactionsService: TransactionsService) {}
 
    @Get('/:userId')
-   findAll(@Param('userId') userId: string) {
-      return this.transactionsService.findAll(+userId)
+   findAll(
+      @Param('userId') userId: string,
+      @Query('page') page: string,
+      @Query('pageSize') pageSize: string,
+   ) {
+      return this.transactionsService.findAll(+userId, +page, +pageSize)
    }
 
    @Get('/find-one/id/:id/user/:userId')
